@@ -1,0 +1,11 @@
+﻿{
+    "title": "Discover Mexico",
+    "description": "Is your spirit of adventure strong enough to score perfectly on this Mexico City treasure hunt? There's only one way to find out... and a unique NFT prize awaits!",
+    "serviceURL": "https://services.arcgis.com/nzS0F0zdNLvs7nc8/arcgis/rest/services/survey123_06c53142eb21471999e11794c9e595ff_stakeholder/FeatureServer/0",
+    "path": "heritage-sites",
+    "introImage": "./Angel.jpg",
+    "initCenter": [-40, 29],
+    "homeZoom": 3,
+    "minZoom": 2,
+    "maxZoom": 16
+}
