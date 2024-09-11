@@ -84,7 +84,7 @@ const lookUpConfig = async (edition) => {
   return config;
 }
 
-export const fetchFeatures = async (serviceURL) => {
+export const fetchFeatures = async (serviceURL) => {{
   const infoJson =  {
     "objectIdFieldName": "objectid",
       "uniqueIdField": {
@@ -366,7 +366,7 @@ export const fetchFeatures = async (serviceURL) => {
   }
 
   return infoJson.features;
-}
+}}
 
 export const getImageURLs = async (serviceURL, objectIds) => {
   const customImageURLs = {

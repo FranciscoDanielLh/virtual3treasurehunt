@@ -2,12 +2,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './components/viewfinder.css';
 import './components/BalloonHelp.css';
 import './App.css';
-import { parseConfig, fetchFeatures, getImageURLs} from './components/Utils';
-import {useEffect, useState, useRef} from "react";
-import {THMap} from './components/THMap';
+import { parseConfig, fetchFeatures, getImageURLs } from './components/Utils';
+import { useEffect, useState, useRef } from "react";
+import { THMap } from './components/THMap';
 import { PhotoCredits } from './components/PhotoCredits';
 import { Loader } from './components/Loader';
-import {Intro} from "./components/Intro"
+import { Intro } from "./components/Intro"
 import { CongratsScreen } from './components/CongratsScreen';
 import Multipoint from "@arcgis/core/geometry/Multipoint";
 import { Instructions } from './components/Instructions';
@@ -28,32 +28,32 @@ function App() {
     () => {
 
       document.addEventListener(
-        "keydown", 
-        (event) => {if (event.code === "Escape") {setHideInstructions(true);}}
+        "keydown",
+        (event) => { if (event.code === "Escape") { setHideInstructions(true); } }
       );
 
-      (async () => setConfig(await parseConfig()))();      
+      (async () => setConfig(await parseConfig()))();
 
-      setTimeout(()=>setFirstThreeSeconds(false), 3000)
+      setTimeout(() => setFirstThreeSeconds(false), 3000)
 
     },
     []
   );
 
   useEffect(
-    ()=> {
+    () => {
       if (config) {
         (async () => {
           const features = await fetchFeatures(config.serviceURL);
           const imageURLs = await getImageURLs(
-            config.serviceURL, 
-            features.map((feature)=>feature.attributes.objectid)
+            config.serviceURL,
+            features.map((feature) => feature.attributes.objectid)
           );
           _records.current = features.map(
-            (feature)=>{
+            (feature) => {
               return {
-                ...feature.attributes, 
-                imageURL: imageURLs.filter((value)=>value.objectId === feature.attributes.objectid).shift().imageURL,
+                ...feature.attributes,
+                imageURL: imageURLs.filter((value) => value.objectId === feature.attributes.objectid).shift().imageURL,
                 solved: false,
                 hintActivated: false,
                 skipped: false,
@@ -68,7 +68,7 @@ function App() {
             var sorted = [];
             while (keys.length) {
               const key = keys.shift();
-              const found = _records.current.find((record)=>record.objectid === key);
+              const found = _records.current.find((record) => record.objectid === key);
               if (found) {
                 sorted.push(found);
               }
@@ -77,7 +77,7 @@ function App() {
           }
 
           const extentWidth = new Multipoint({
-            points: _records.current.map((value)=>[value.x, value.y])
+            points: _records.current.map((value) => [value.x, value.y])
           }).extent.width;
           setScaleDenominator(extentWidth < 100 ? extentWidth : 100);
           setSelectedQuestion(_records.current.slice().shift())
@@ -88,7 +88,7 @@ function App() {
   )
 
   useEffect(
-    ()=> {
+    () => {
       if (!config) {
         return;
       };
@@ -98,26 +98,50 @@ function App() {
         return;
       }
       if (
-        config.stacking === "bottom" && 
+        config.stacking === "bottom" &&
         (selectedQuestion.hintActivated || selectedQuestion.solved)
       ) {
-        cardBody.scrollTo({top:bubbleContainer.offsetHeight,behavior:"smooth"})
+        cardBody.scrollTo({ top: bubbleContainer.offsetHeight, behavior: "smooth" })
       } else {
-        cardBody.scrollTo({top:0,behavior:"smooth"})
+        cardBody.scrollTo({ top: 0, behavior: "smooth" })
       }
     },
     [config, selectedQuestion]
   )
 
+  // Función para calcular la distancia entre dos puntos (x1, y1) y (x2, y2)
+const calculateDistance = (x1, y1, x2, y2) => {
+  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+}
+
+
   const doNext = () => {
     setHideInstructions(true);
     const idx = findItemIndex(selectedQuestion.objectid);
-    setSelectedQuestion(
-      idx < _records.current.length - 1 ? 
-      _records.current[idx+1] :
-      selectedQuestion 
-    );
+  
+    // Si hay una siguiente pregunta
+    if (idx < _records.current.length - 1) {
+      const currentQuestion = _records.current[idx];
+      const nextQuestion = _records.current[idx + 1];
+      
+      // Calcula la distancia entre la pregunta actual y la siguiente
+      const distance = calculateDistance(
+        currentQuestion.x, currentQuestion.y,
+        nextQuestion.x, nextQuestion.y
+      );
+  
+      // Establece un umbral más bajo para CDMX (ejemplo: 0.0005 o ajusta según lo necesario)
+      const threshold = 0.0005; 
+  
+      // Solo avanza a la siguiente pregunta si la distancia supera el umbral
+      if (distance > threshold) {
+        setSelectedQuestion(nextQuestion);
+      } else {
+        console.log('Demasiado cerca para avanzar a la siguiente pregunta');
+      }
+    }
   }
+  
 
   const doSkip = () => {
     markSkipped(selectedQuestion.objectid);
@@ -138,7 +162,7 @@ function App() {
   const markSolved = (objectid) => {
     const idx = findItemIndex(objectid);
     const question = _records.current[idx]
-    const marked = {...question, solved: true};
+    const marked = { ...question, solved: true };
     _records.current.splice(idx, 1, marked);
     setSelectedQuestion(marked);
   }
@@ -146,7 +170,7 @@ function App() {
   const markHintActivated = (objectid) => {
     const idx = findItemIndex(objectid);
     const question = _records.current[idx]
-    const marked = {...question, hintActivated: true};
+    const marked = { ...question, hintActivated: true };
     _records.current.splice(idx, 1, marked);
     setSelectedQuestion(marked);
   }
@@ -154,70 +178,87 @@ function App() {
   const markSkipped = (objectid) => {
     const idx = findItemIndex(objectid);
     const question = _records.current[idx]
-    const marked = {...question, skipped: true};
+    const marked = { ...question, skipped: true };
     _records.current.splice(idx, 1, marked);
     setSelectedQuestion(marked);
   }
 
   const findItemIndex = (objectid) => {
-    return _records.current.findIndex((element)=>element.objectid === objectid)
+    return _records.current.findIndex((element) => element.objectid === objectid)
   }
-  
+
   const calculateScore = () => {
-    const numCorrect = _records.current.filter((value) =>value.solved && !value.skipped).length;
-    const denominator = _records.current.filter((value)=>value.solved).length;
-    return denominator && (numCorrect / denominator)*100;
+    const numCorrect = _records.current.filter((value) => value.solved && !value.skipped).length;
+    const denominator = _records.current.filter((value) => value.solved).length;
+    return denominator && (numCorrect / denominator) * 100;
   }
-  
+
   return (
 
     <div className="App vh-100 pb-md-2 pb-sm-1 p-0 d-flex flex-column">
       {
-      config && 
-      <>
+        config &&
+        <>
 
-        <header className="border-bottom border-bottom-1 d-flex justify-content-between align-items-center p-3">
-          <h1 className="fs-5 ms-2">Treasure Hunt: {config.title}</h1>
-          <button className="btn btn-sm fw-bold btn-outline-secondary btn-light me-2" 
-                style={{borderColor: "navy"}}
-                onClick={()=>showInstructions()}>Instructions</button>
-        </header>
+          <header
+            className="border-bottom-1 d-flex justify-content-between align-items-center p-3"
+            style={{
+              position: "absolute",
+              top: "0",
+              width: "100%",
+              backgroundColor: "rgba(255, 255, 255, 0)",  // Completamente transparente
+              zIndex: "9999" // Borde visible para debugging (puedes quitarlo más tarde)
+            }}
+          >
+            <h1 className="fs-5 ms-2" style={{
+              color: "white"
+            }}></h1>
+            <button
+              className="btn btn-sm fw-bold btn-outline-secondary btn-light me-2"
+              style={{
+                borderColor: "navy"
+              }}
+              onClick={() => showInstructions()}
+            >
+              Instructions
+            </button>
+          </header>
 
-        <section id="main" 
-                className="flex-grow-1 d-flex flex-column flex-lg-row-reverse position-relative overflow-hidden pb-2">
+          <section id="main"
+            className="flex-grow-1 d-flex flex-column flex-lg-row-reverse position-relative overflow-hidden pb-2">
 
-          {
-          !hideCongratsScreen &&
-          <CongratsScreen className="position-absolute w-100 h-100"
-                      style={{zIndex: 2000, backgroundColor: "rgba(0,0,0,0.6)"}} 
-                      title={config.title}
-                      score={parseInt(calculateScore())}
-                      records={_records.current}
-                      onDismiss={()=>dismissCongratsScreen()}></CongratsScreen>
-        }
-
-          {
-          selectedQuestion && !hideIntro &&
-          <Intro className="position-absolute w-100 h-100 bg-white"
-                style={{zIndex: 2000}} 
-                title={config.title} 
+            {
+              !hideCongratsScreen &&
+              <CongratsScreen className="position-absolute w-100 h-100"
+                style={{ zIndex: 2000, backgroundColor: "rgba(0,0,0,0.6)" }}
+                title={config.title}
+                score={parseInt(calculateScore())}
+                records={_records.current}
+                onDismiss={() => dismissCongratsScreen()}></CongratsScreen>
+            }
+            {
+              selectedQuestion && !hideIntro &&
+              <Intro className="position-absolute w-100 h-100 bg-white"
+                style={{ zIndex: 2000 }}
+                title={config.title}
                 description={config.description}
+                backgroundImage={config.introImage}
                 hero={config.introImage || selectedQuestion.imageURL}
-                onDismiss={()=>{setHideIntro(true)}}></Intro>
-          }
-
-          {
-          (!selectedQuestion || firstThreeSeconds) && 
-          <Loader className="position-absolute w-100 h-100"
-                style={{zIndex: 2000, backgroundColor: "rgba(0,0,0,0.6)"}} 
-                title={config.title}></Loader>
-          }
-          {
-          !hideInstructions && <Instructions onDismiss={()=>setHideInstructions(true)}/>
-          }
-          {
-          selectedQuestion && 
-          <THMap id="map" 
+                aptos = {config.aptos}
+                onDismiss={() => { setHideIntro(true) }}></Intro>
+            }
+{/*             {
+            (!selectedQuestion || firstThreeSeconds) &&
+              <Loader className="position-absolute w-100 h-100"
+                style={{ zIndex: 2000, backgroundColor: "rgba(0,0,0,0.6)" }}
+                title={config.title}></Loader> 
+            } */}
+            {
+              !hideInstructions && <Instructions onDismiss={() => setHideInstructions(true)} />
+            }
+            {
+              selectedQuestion &&
+              <THMap id="map"
                 className="flex-grow-1 flex-shrink-0 flex-lg-shrink-1"
                 initCenter={config.initCenter}
                 homeZoom={config.homeZoom}
@@ -225,129 +266,129 @@ function App() {
                 maxZoom={config.maxZoom}
                 scaleDenominator={scaleDenominator}
                 selected={selectedQuestion}
-                onSolve={(objectid)=>markSolved(objectid)}></THMap>
-          }
+                onSolve={(objectid) => markSolved(objectid)}></THMap>
+            }
 
-          {
-          selectedQuestion &&
-          <div id="controls"
-                className="w-100 flex-lg-grow-1 align-self-center align-self-lg-stretch overflow-hidden d-flex flex-column align-items-center p-2 p-lg-0" 
-                style={{flexBasis: "60%"}}>
-            <div className="w-100 card flex-grow-1 d-flex flex-column overflow-hidden" 
-                style={{border: "none"}}>
-              <div className="card-header d-flex justify-content-between ps-4 pe-4" 
-                  style={{border: "none", background: "none"}}>
-                <h3 className="h5">QUESTION {findItemIndex(selectedQuestion.objectid)+1} OF {_records.current.length}</h3>
-                {!selectedQuestion.skipped && selectedQuestion.solved && <span>Solved</span>}
-                <h3 className="h5 fw-bolder">SCORE: {parseInt(calculateScore())}%</h3>
-              </div>
-              <div id="question-image-1" 
-                  className="w-100 align-self-center p-4 pt-1 mb-3"
-                  style={{
-                    flexBasis: "45%",
-                    flexShrink: "0", 
-                    maxHeight: "400px"
-                  }}>
-                <div className="h-100"
-                  style={{
-                    backgroundImage: `url(${selectedQuestion.imageURL})`,
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "top center",
-                    backgroundSize: "contain",
-                    width:"auto",
-                    borderRadius: "0.25rem"
-                  }}>
-                </div>
-                <PhotoCredits 
-                    id="photo-credits-1"
-                    attribution={selectedQuestion.image_attribution}
-                    sourceReferenceURL={selectedQuestion.image_source_reference_page}
-                    license={selectedQuestion.image_license}
-                    licenseReferenceURL={selectedQuestion.image_license_reference_page}
-                    className='small p-1'></PhotoCredits>
-              </div>
+            {
+              selectedQuestion &&
+              <div id="controls"
+                className="w-100 flex-lg-grow-1 align-self-center align-self-lg-stretch overflow-hidden d-flex flex-column align-items-center p-2 p-lg-0"
+                style={{ flexBasis: "60%" }}>
+                <div className="w-100 card flex-grow-1 d-flex flex-column overflow-hidden"
+                  style={{ border: "none" }}>
+                  <div className="card-header d-flex justify-content-between ps-4 pe-4"
+                    style={{ border: "none", background: "none" }}>
+                    <h3 className="h5">QUESTION {findItemIndex(selectedQuestion.objectid) + 1} OF {_records.current.length}</h3>
+                    {!selectedQuestion.skipped && selectedQuestion.solved && <span>Solved</span>}
+                    <h3 className="h5 fw-bolder">SCORE: {parseInt(calculateScore())}%</h3>
+                  </div>
+                  <div id="question-image-1"
+                    className="w-100 align-self-center p-4 pt-1 mb-3"
+                    style={{
+                      flexBasis: "45%",
+                      flexShrink: "0",
+                      maxHeight: "400px"
+                    }}>
+                    <div className="h-100"
+                      style={{
+                        backgroundImage: `url(${selectedQuestion.imageURL})`,
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "top center",
+                        backgroundSize: "contain",
+                        width: "auto",
+                        borderRadius: "0.25rem"
+                      }}>
+                    </div>
+                    <PhotoCredits
+                      id="photo-credits-1"
+                      attribution={selectedQuestion.image_attribution}
+                      sourceReferenceURL={selectedQuestion.image_source_reference_page}
+                      license={selectedQuestion.image_license}
+                      licenseReferenceURL={selectedQuestion.image_license_reference_page}
+                      className='small p-1'></PhotoCredits>
+                  </div>
 
-              <div className="card-body d-flex flex-column overflow-auto p-4 pb-0 border-top-2"
+                  <div className="card-body d-flex flex-column overflow-auto p-4 pb-0 border-top-2"
                     style={{
                       WebkitOverflowScrolling: "touch",
                       boxShadow: "inset 0px 11px 8px -10px #CCC"
                     }}>
-                  <div id="bubble-container" className={`d-flex ${config.stacking === "top" ? "flex-column" : "flex-column-reverse"}`}>
-                    {
-                    selectedQuestion.solved &&
-                    <div className="alert alert-success"
-                        style={{animation: "swoopy .5s linear"}}>
+                    <div id="bubble-container" className={`d-flex ${config.stacking === "top" ? "flex-column" : "flex-column-reverse"}`}>
                       {
-                      findItemIndex(selectedQuestion.objectid) < _records.current.length - 1 && 
-                      selectedQuestion.solved && 
-                      <button className="btn btn-sm btn-primary ms-3 w-100" 
-                              style={{maxWidth: "120px", float: "right"}}
+                        selectedQuestion.solved &&
+                        <div className="alert alert-success"
+                          style={{ animation: "swoopy .5s linear" }}>
+                          {
+                            findItemIndex(selectedQuestion.objectid) < _records.current.length - 1 &&
+                            selectedQuestion.solved &&
+                            <button className="btn btn-sm btn-primary ms-3 w-100"
+                              style={{ maxWidth: "120px", float: "right" }}
                               onClick={doNext}>Next Question</button>
-                      }                      
-                      {
-                      findItemIndex(selectedQuestion.objectid) === _records.current.length - 1 && 
-                      _records.current.filter((question)=>question.solved).length === _records.current.length &&
-                      <button className="btn btn-sm btn-primary ms-3 w-100" 
-                              style={{maxWidth: "120px", float: "right"}}
+                          }
+                          {
+                            findItemIndex(selectedQuestion.objectid) === _records.current.length - 1 &&
+                            _records.current.filter((question) => question.solved).length === _records.current.length &&
+                            <button className="btn btn-sm btn-primary ms-3 w-100"
+                              style={{ maxWidth: "120px", float: "right" }}
                               onClick={() => showCongratsScreen()}>See your results!</button>
+                          }
+                          <h4 className="h6 fw-bolder">ANSWER</h4>
+                          <p dangerouslySetInnerHTML={{ __html: selectedQuestion.exclamation }}></p>
+                        </div>
                       }
-                      <h4 className="h6 fw-bolder">ANSWER</h4>
-                      <p dangerouslySetInnerHTML={{__html: selectedQuestion.exclamation}}></p>
-                    </div>
-                    }
-                    {
-                    selectedQuestion.hintActivated &&
-                    <div className="alert alert-info"
-                      style={
-                        !selectedQuestion.solved ? 
-                          {animation: "swoopy .5s linear"} : 
-                          {opacity:"0.8"}
-                      }>
-                      <h4 className="h6 fw-bolder">HINT</h4>
-                      <p dangerouslySetInnerHTML={{__html: selectedQuestion.hint}}></p>
-                      <button className="btn btn-sm btn-outline-primary"
-                              disabled={selectedQuestion.solved || selectedQuestion.skipped}
-                              onClick={doSkip}>Stumped? Reveal the answer.</button>                    
-                    </div>
-                    }
-                    <div className="alert alert-info"
-                      style={
-                        selectedQuestion.hintActivated || selectedQuestion.solved ? 
-                        {opacity:"0.8"} : 
-                        {animation: "swoopy .5s linear"}
-                      }>
+                      {
+                        selectedQuestion.hintActivated &&
+                        <div className="alert alert-info"
+                          style={
+                            !selectedQuestion.solved ?
+                              { animation: "swoopy .5s linear" } :
+                              { opacity: "0.8" }
+                          }>
+                          <h4 className="h6 fw-bolder">HINT</h4>
+                          <p dangerouslySetInnerHTML={{ __html: selectedQuestion.hint }}></p>
+                          <button className="btn btn-sm btn-outline-primary"
+                            disabled={selectedQuestion.solved || selectedQuestion.skipped}
+                            onClick={doSkip}>Stumped? Reveal the answer.</button>
+                        </div>
+                      }
+                      <div className="alert alert-info"
+                        style={
+                          selectedQuestion.hintActivated || selectedQuestion.solved ?
+                            { opacity: "0.8" } :
+                            { animation: "swoopy .5s linear" }
+                        }>
                         <h4 className="h6 fw-bolder">QUESTION</h4>
-                        <p dangerouslySetInnerHTML={{__html: selectedQuestion.prompt}}></p>
-                        <button target="blank" 
-                                  className="btn btn-sm btn-outline-primary"
-                                  disabled={selectedQuestion.hintActivated || selectedQuestion.solved}
-                                  onClick={()=>markHintActivated(selectedQuestion.objectid)}>Need a hint?</button>
+                        <p dangerouslySetInnerHTML={{ __html: selectedQuestion.prompt }}></p>
+                        <button target="blank"
+                          className="btn btn-sm btn-outline-primary"
+                          disabled={selectedQuestion.hintActivated || selectedQuestion.solved}
+                          onClick={() => markHintActivated(selectedQuestion.objectid)}>Need a hint?</button>
+                      </div>
+                      <div id="question-image-2"
+                        className="align-self-center flex-column align-items-center mb-2"
+                        style={{ width: "80%", display: "none" }}>
+                        <div style={{
+                          width: "100%", maxWidth: "400px", paddingTop: "75%",
+                          backgroundImage: `url(${selectedQuestion.imageURL})`,
+                          backgroundRepeat: "no-repeat",
+                          backgroundPosition: "top center",
+                          backgroundSize: "cover"
+                        }}></div>
+                        <PhotoCredits
+                          id="photo-credits-2"
+                          attribution={selectedQuestion.image_attribution}
+                          sourceReferenceURL={selectedQuestion.image_source_reference_page}
+                          license={selectedQuestion.image_license}
+                          licenseReferenceURL={selectedQuestion.image_license_reference_page}
+                          className='small p-1'></PhotoCredits>
+                      </div>
                     </div>
-                    <div id="question-image-2" 
-                          className="align-self-center flex-column align-items-center mb-2" 
-                          style={{width: "80%", display: "none"}}>
-                      <div style={{
-                            width: "100%", maxWidth: "400px", paddingTop: "75%",
-                            backgroundImage: `url(${selectedQuestion.imageURL})`,
-                            backgroundRepeat: "no-repeat",
-                            backgroundPosition: "top center",
-                            backgroundSize: "cover"
-                          }}></div>
-                      <PhotoCredits 
-                            id="photo-credits-2"
-                            attribution={selectedQuestion.image_attribution}
-                            sourceReferenceURL={selectedQuestion.image_source_reference_page}
-                            license={selectedQuestion.image_license}
-                            licenseReferenceURL={selectedQuestion.image_license_reference_page}
-                            className='small p-1'></PhotoCredits>
-                    </div>
-                  </div>                                  
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          }
-        </section>
-      </>
+            }
+          </section>
+        </>
       }
     </div>
   );
