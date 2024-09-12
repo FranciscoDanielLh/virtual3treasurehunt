@@ -1,4 +1,10 @@
+
+
+
+
 export const parseConfig = async () => {
+
+  
   const response = await fetch("./config.json");
   const json = await response.json();
   const args = parseArgs();

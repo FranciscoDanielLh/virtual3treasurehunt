@@ -8,6 +8,7 @@ export const Intro = ({
     backgroundImage,
     aptos
 }) => {
+
     className = className + " d-flex justify-content-center align-items-center"
     return (
         <div id="intro"
@@ -40,7 +41,7 @@ export const Intro = ({
                     </div>
                     <div style={{ textAlign: "center" }}>
                         <p> Featured: </p>
-                        <img src={aptos} style={{ Height: "40px", minHeight: "40px", maxHeight: "40px", maxWidth: "40px" }}>
+                        <img src={aptos} style={{ Height: "40px", minHeight: "40px", maxHeight: "40px" }}>
                         </img>
                     </div>
 
@@ -52,6 +53,8 @@ export const Intro = ({
 
                 </div>
             </div>
+
+            
         </div>
     );
 }

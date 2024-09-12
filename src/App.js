@@ -110,29 +110,53 @@ function App() {
   )
 
   // Función para calcular la distancia entre dos puntos (x1, y1) y (x2, y2)
-const calculateDistance = (x1, y1, x2, y2) => {
-  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-}
+  const calculateDistance = (x1, y1, x2, y2) => {
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+  }
 
+
+  const petra = async () => {
+
+    const getAptosWallet = () => {
+      if ('aptos' in window) {
+        return window.aptos;
+      } else {
+        //window.open('https://petra.app/', `_blank`);
+      }
+    };
+
+    const wallet = getAptosWallet();
+    try {
+      const response = await wallet.connect();
+      console.log(response); // { address: string, address: string }
+
+      const account = await wallet.account();
+      console.log(account); // { address: string, address: string }
+    } catch (error) {
+      // { code: 4001, message: "User rejected the request."}
+    }
+  }
+
+   // petra()
 
   const doNext = () => {
     setHideInstructions(true);
     const idx = findItemIndex(selectedQuestion.objectid);
-  
+
     // Si hay una siguiente pregunta
     if (idx < _records.current.length - 1) {
       const currentQuestion = _records.current[idx];
       const nextQuestion = _records.current[idx + 1];
-      
+
       // Calcula la distancia entre la pregunta actual y la siguiente
       const distance = calculateDistance(
         currentQuestion.x, currentQuestion.y,
         nextQuestion.x, nextQuestion.y
       );
-  
+
       // Establece un umbral más bajo para CDMX (ejemplo: 0.0005 o ajusta según lo necesario)
-      const threshold = 0.0005; 
-  
+      const threshold = 0.0005;
+
       // Solo avanza a la siguiente pregunta si la distancia supera el umbral
       if (distance > threshold) {
         setSelectedQuestion(nextQuestion);
@@ -141,7 +165,7 @@ const calculateDistance = (x1, y1, x2, y2) => {
       }
     }
   }
-  
+
 
   const doSkip = () => {
     markSkipped(selectedQuestion.objectid);
@@ -244,10 +268,10 @@ const calculateDistance = (x1, y1, x2, y2) => {
                 description={config.description}
                 backgroundImage={config.introImage}
                 hero={config.introImage || selectedQuestion.imageURL}
-                aptos = {config.aptos}
+                aptos={config.aptos}
                 onDismiss={() => { setHideIntro(true) }}></Intro>
             }
-{/*             {
+            {/*             {
             (!selectedQuestion || firstThreeSeconds) &&
               <Loader className="position-absolute w-100 h-100"
                 style={{ zIndex: 2000, backgroundColor: "rgba(0,0,0,0.6)" }}
