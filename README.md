@@ -1,57 +1,80 @@
 # Treasure Hunt App
 
-This is the Github repo for the Treasure Hunt Application, which is a location based quiz application (for the browser) built w/ JavaScript, React, and the ArcGIS API for JavaScript.
+Welcome to the Treasure Hunt Application repository! This project is a location-based quiz game built with **JavaScript**, **React**, and the **ArcGIS API for JavaScript**.
 
+## Project Overview
 
-The remainder of this README is intended for developers who wish to download and modify the source code or host the application on their own servers.
+This project is an extension of the Season Two project for **Aptos**. In this version, we've enhanced the frontend to be more responsive and added a powerful backend built with **Python** and **FastAPI**. The application uses AI to generate images, mints them as NFTs, and sends them as rewards to the player's wallet upon completing the game.
 
-## Instructions
+## Getting Started
 
-1. Fork and then clone the repo. 
-2. Install dependencies
+Follow the instructions below to set up the development environment for both the frontend and backend of this project.
 
-```bash
-npm install
-```
+### Frontend Setup
 
-3. Run the app in the development mode.
+1. **Fork** and **clone** the repository.
+2. Install the required dependencies:
 
-```bash
-npm run start
-```
+    ```bash
+    npm install
+    ```
+
+3. Run the app in development mode:
+
+    ```bash
+    npm run start
+    ```
+
+### Backend Setup
+
+The backend is developed in **Python** using **FastAPI**. Follow these steps to set up and run the backend:
+
+1. Ensure you have **Python 3.10** or higher installed.
+2. Navigate to the backend directory:
+
+    ```bash
+    cd backend/fastapi-api
+    ```
+
+3. Install the required Python packages:
+
+    ```bash
+    pip3 install -r requirements.txt
+    ```
+
+4. Run the backend server using **Uvicorn**:
+
+    ```bash
+    uvicorn app:app --reload
+    ```
 
 ## Requirements
 
-* [Node JS](https://nodejs.org/) (w/ npm) in order to run development environment.
+- **Node.js** (with npm) to run the frontend development environment.
+- **Python 3.10+** to run the backend.
 
 ## Resources
 
-* [Node JS](https://nodejs.org/)
-* [ArcGIS API for Javascript](https://developers.arcgis.com/javascript/)
-* [React](https://reactjs.org/)
-* [Bootstrap](https://getbootstrap.com/)
+- [Node.js](https://nodejs.org/)
+- [ArcGIS API for JavaScript](https://developers.arcgis.com/javascript/)
+- [React](https://reactjs.org/)
+- [Bootstrap](https://getbootstrap.com/)
+- [FastAPI](https://fastapi.tiangolo.com/)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Issues
+## Issues and Contributions
 
-Find a bug or want to request a new feature?  Please let us know by submitting an issue.
+Found a bug or have a feature request? Please let us know by submitting an issue or contributing to the code.
 
+## License
 
-## Licensing
+&copy; 2024 Pushers
 
-Copyright 2024 Pushers
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at:
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+[http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
 
