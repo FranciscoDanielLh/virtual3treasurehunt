@@ -9,3 +9,5 @@ API_KEY_CLOUDINARY=os.environ["API_KEY_CLOUDINARY"]
 API_SECRET_CLOUDINARY=os.environ["API_SECRET_CLOUDINARY"]
 
 TMP_ROUTE = os.path.abspath("src/tmp")
+PRIVATE_KEY_HEX=os.environ["PRIVATE_KEY_HEX"]
+COLLECTION_NAME = "Mexico city: Treasure Hunt 1.0"

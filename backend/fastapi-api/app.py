@@ -26,7 +26,7 @@ async def read_root():
 async def game_success(request: SuccessGameRequest):
     wallet = request.wallet
     percentage = request.percentage
-    return SuccessGameController.create_nft(wallet, percentage)
+    return await SuccessGameController.create_nft(wallet, percentage)
 
 @app.post("/text_to_speech", tags=["TextSpeech"]) 
 async def text_to_speech(request: TextToSpeechRequest):
