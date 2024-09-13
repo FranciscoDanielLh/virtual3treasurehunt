@@ -115,27 +115,6 @@ function App() {
   }
 
 
-  const petra = async () => {
-
-    const getAptosWallet = () => {
-      if ('aptos' in window) {
-        return window.aptos;
-      } else {
-        //window.open('https://petra.app/', `_blank`);
-      }
-    };
-
-    const wallet = getAptosWallet();
-    try {
-      const response = await wallet.connect();
-      console.log(response); // { address: string, address: string }
-
-      const account = await wallet.account();
-      console.log(account); // { address: string, address: string }
-    } catch (error) {
-      // { code: 4001, message: "User rejected the request."}
-    }
-  }
 
    // petra()
 
